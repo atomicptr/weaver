@@ -2,6 +2,7 @@ package weaver
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -103,6 +104,15 @@ func TestFragment(t *testing.T) {
 	assert.Equal(t, "<h1>Hello World!</h1><h2>Subtitle</h2>", buf.String())
 }
 
+func TestFragmentAsChild(t *testing.T) {
+	buf := &bytes.Buffer{}
+
+	err := El("ul", Fragment(El("li", Text("1")), El("li", Text("2")), El("li", Text("3")))).RenderHtml(buf)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "<ul><li>1</li><li>2</li><li>3</li></ul>", buf.String())
+}
+
 func TestIf(t *testing.T) {
 	buf := &bytes.Buffer{}
 
@@ -139,5 +149,25 @@ func TestIfElse(t *testing.T) {
 	}, func() Node {
 		return Text("Nope")
 	})).RenderHtml(buf)
+	assert.Nil(t, err)
 	assert.Equal(t, "<h1>Hello: Nope</h1>", buf.String())
+}
+
+func TestEach(t *testing.T) {
+	buf := &bytes.Buffer{}
+
+	names := []string{
+		"Peter",
+		"Hans",
+		"Michael",
+	}
+
+	err := El("ul", Each(names, func(name string) Node {
+		return El("li", Text(fmt.Sprintf("Hello, %s", name)))
+	})).RenderHtml(buf)
+
+	fmt.Println(buf)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "<ul><li>Hello, Peter</li><li>Hello, Hans</li><li>Hello, Michael</li></ul>", buf.String())
 }

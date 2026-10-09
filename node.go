@@ -191,8 +191,14 @@ func UnsafeRawText(text string) Node {
 // Fragment returns multiple elements as is without a wrapper element
 func Fragment(nodes ...Node) Node {
 	return func(ctx RenderContext) (RenderContext, error) {
+		var err error
+
 		for _, n := range nodes {
-			_, err := n(ctx)
+			if n == nil {
+				continue
+			}
+
+			ctx, err = n(ctx)
 			if err != nil {
 				return ctx, err
 			}
@@ -221,6 +227,19 @@ func IfElse(condition bool, thenFunc func() Node, elseFunc func() Node) Node {
 		}
 
 		return elseFunc()(ctx)
+	}
+}
+
+// Each creates a node for each element in a slice
+func Each[T any](items []T, fn func(T) Node) Node {
+	return func(ctx RenderContext) (RenderContext, error) {
+		nodes := make([]Node, 0, len(items))
+
+		for _, item := range items {
+			nodes = append(nodes, fn(item))
+		}
+
+		return Fragment(nodes...)(ctx)
 	}
 }
 

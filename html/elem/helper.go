@@ -26,3 +26,8 @@ func If(condition bool, thenFunc func() weaver.Node) weaver.Node {
 func IfElse(condition bool, thenFunc func() weaver.Node, elseFunc func() weaver.Node) weaver.Node {
 	return weaver.IfElse(condition, thenFunc, elseFunc)
 }
+
+// Each creates a node for each element in a slice
+func Each[T any](items []T, fn func(T) weaver.Node) weaver.Node {
+	return weaver.Each(items, fn)
+}

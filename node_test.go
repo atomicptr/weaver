@@ -102,3 +102,42 @@ func TestFragment(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "<h1>Hello World!</h1><h2>Subtitle</h2>", buf.String())
 }
+
+func TestIf(t *testing.T) {
+	buf := &bytes.Buffer{}
+
+	err := El("h1", Text("Hello: "), If(true, func() Node {
+		return Text("Yes")
+	})).RenderHtml(buf)
+	assert.Nil(t, err)
+	assert.Equal(t, "<h1>Hello: Yes</h1>", buf.String())
+
+	buf = &bytes.Buffer{}
+
+	err = El("h1", Text("Hello: "), If(false, func() Node {
+		return Text("No")
+	})).RenderHtml(buf)
+	assert.Nil(t, err)
+	assert.Equal(t, "<h1>Hello: </h1>", buf.String())
+}
+
+func TestIfElse(t *testing.T) {
+	buf := &bytes.Buffer{}
+
+	err := El("h1", Text("Hello: "), IfElse(true, func() Node {
+		return Text("Yes")
+	}, func() Node {
+		return Text("Nope")
+	})).RenderHtml(buf)
+	assert.Nil(t, err)
+	assert.Equal(t, "<h1>Hello: Yes</h1>", buf.String())
+
+	buf = &bytes.Buffer{}
+
+	err = El("h1", Text("Hello: "), IfElse(false, func() Node {
+		return Text("Yes")
+	}, func() Node {
+		return Text("Nope")
+	})).RenderHtml(buf)
+	assert.Equal(t, "<h1>Hello: Nope</h1>", buf.String())
+}

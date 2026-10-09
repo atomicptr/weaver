@@ -202,6 +202,28 @@ func Fragment(nodes ...Node) Node {
 	}
 }
 
+// If returns the node provided by the closure when the condition is true
+func If(condition bool, thenFunc func() Node) Node {
+	return func(ctx RenderContext) (RenderContext, error) {
+		if !condition {
+			return ctx, nil
+		}
+
+		return thenFunc()(ctx)
+	}
+}
+
+// IfElse returns the node provided by the first closure when the condition is true, otherwise it calls the else closure
+func IfElse(condition bool, thenFunc func() Node, elseFunc func() Node) Node {
+	return func(ctx RenderContext) (RenderContext, error) {
+		if condition {
+			return thenFunc()(ctx)
+		}
+
+		return elseFunc()(ctx)
+	}
+}
+
 func ensureParentIsClosed(ctx RenderContext) (RenderContext, error) {
 	if ctx.IsOpen {
 		ctx.IsOpen = false
